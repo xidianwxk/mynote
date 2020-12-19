@@ -587,10 +587,12 @@ Lenovo@DESKTOP-J5DASFT MINGW64 ~/Desktop/MyTyporaNote (master|MERGING)
     Deleted branch temp (was 40f902d).
     ```
 
-<<<<<<< HEAD
-    如果该分支的代码之前没有merge到本地，那么删除该分支会报错，可以使用git branch -D temp强制删除该分支。
 
-#### Git本地仓库与远程github同步的时候提示fatal: remote origin already exists 错误解决办法
+​    如果该分支的代码之前没有merge到本地，那么删除该分支会报错，可以使用git branch -D temp强制删除该分支。
+
+#### fatal: remote origin already exists 
+
+Git本地仓库与远程github同步的时候提示f错误解决办法
 
 ```
 git remote rm origin
@@ -598,5 +600,91 @@ git remote rm origin
 
 ![image-20201219145645111](Git.assets/image-20201219145645111.png)
 =======
-    如果该分支的代码之前没有merge到本地，那么删除该分支会报错，可以使用git branch -D temp强制删除该分支。
->>>>>>> 484527f3452d55a2e4042975a3864d6d697cc04c
+    如果该分支的代码之前没有merge到本地，那么删除该分支会报错，可以使用git branch -D temp强制删除该分支
+#### 本地代码提交到多个远程仓库
+
++ ```shell
+  vim .git/config
+  
+  [remote "web"]
+  url = ssh://server.example.org/home/ams/website.git
+  url = ssh://other.exaple.org/home/foo/website.git
+  
+  ```
+
++ ```shell
+  git remote add gitee https://gitee.com/w_xkun/mynote.git
+  git remote add github https://github.com/xidianwxk/mynote.git
+  
+  git push gitee master
+  git push github master
+  ```
+
++ ```shell
+  
+  进入到项目目录，执行
+  git init
+  然后执行添加远程仓库地址：
+  git remote add origin xxx@xxxx.git（自己的远程仓库地址）
+  然后查看配置
+  vi .git/config
+  #内容如下，为了独立做到独立推送，我们修改如下
+  [core]
+          repositoryformatversion = 0
+          filemode = false
+          bare = false
+          logallrefupdates = true
+          symlinks = false
+          ignorecase = true
+  [submodule]
+          active = .
+  [remote "origin"]
+          url = https://git.oschina.net/mvpboss1004/Availability.git
+          fetch = +refs/heads/*:refs/remotes/origin/*
+  [branch "master"]
+          remote = origin
+          remote = gitlab
+          merge = refs/heads/master
+  [remote "gitlab"]
+          url = https://github.com/mvpboss1004/Availability.git
+          fetch = +refs/heads/*:refs/remotes/origin/*
+   
+  保存退出
+  可以执行，更新
+  git pull origin master
+  git pull gitlab master
+  或者推送
+  git push origin master
+  git push gitlab master
+   
+  
+  ```
+
++ ```shell
+  git add .
+  git push gitlab master
+   
+  如果报错以下
+   ! [rejected]        master -> master (fetch first)
+  error: failed to push some refs to 'git@gitlab.com:myoppo/videos.git'
+  hint: Updates were rejected because the remote contains work that you do
+  hint: not have locally. This is usually caused by another repository pushing
+  hint: to the same ref. You may want to first integrate the remote changes
+  hint: (e.g., 'git pull ...') before pushing again.
+  hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+   
+  是因为gitlab有一个保护机制，需要在项目设置里关闭
+   
+  继续执行推送，新的代码仓库有README等存在的文件，会刀子和推送报错
+  查看了gitee的教程，使用以下方式
+   
+  在新建项目时，如果在码云平台仓库上已经存在 readme 或其他文件，在提交时可能会存在冲突，这时用户需要选择的是保留线上的文件或者舍弃线上的文件，如果您舍弃线上的文件，则在推送时选择强制推送，强制推送需要执行下面的命令(默认不推荐该行为)：
+   
+  //我是采用以下push成功，因为目的就是将已有的本地代码推送到新建的远仓
+  $ git push origin master -f
+  如果您选择保留线上的 readme 文件,则需要先执行：
+   
+  $ git pull origin master
+  ```
+
++ 
