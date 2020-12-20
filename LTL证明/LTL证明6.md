@@ -1181,3 +1181,94 @@ Hilbert 的公理系统可以写作三个公理模式加一个规则：
 演绎定理
 
 ![image-20201218171916662](LTL证明6.assets\image-20201218171916662.png)
+
+
+
+
+
+
+
+
+
+###### 添加
+
+```
+LTL_test6  % [ parameters ]
+		: THEORY
+
+  BEGIN
+
+  % ASSUMING
+   % assuming declarations
+  % ENDASSUMING
+
+  
+    LTL: nonempty_type = boolean
+
+    p,q,r      : var bool
+    l,l1,l2    : var LTL
+
+    tt		  : LTL = true;
+    ff		  : LTL = not tt;
+
+    X:  [LTL -> LTL];
+    F:  [LTL -> LTL];
+    G:  [LTL -> LTL];
+    U:  [LTL , LTL -> LTL];
+    W:  [LTL , LTL -> LTL];
+    R:  [LTL , LTL -> LTL];
+
+    A1 : axiom F(F(l)) => F(l)
+    A2 : axiom G(l) => l;
+
+ 
+
+    Gamma	  : var LTL;
+    Delta	  : var LTL;
+    
+    emptyconsequent : LTL = ff;
+    emptyantecedent : LTL = tt;
+
+    X		  : var LTL;
+    *(Gamma , X)  : LTL = Gamma and X;
+    +(Delta , X)  : LTL = Delta or X;
+    
+    SQT(Gamma , Delta) : bool = Gamma => Delta;       
+
+
+    |-(Delta) : bool = SQT(emptyantecedent , Delta);
+  
+    MP : axiom |-(l1) and |-(l1 => l2)  => |-(l2);
+   
+
+    Rule_G:	lemma |-(l) => |-(G(l))
+    Rule_F_impl     : lemma |-(l1 => l2) => |-(F(l1) => F(l2))
+    Rule_G_impl	    : lemma |-(l1 => l2) => |-(G(l1) => G(l2))
+
+
+    Th1:	    lemma  G(l1) and F(l2) => F(l1 and l2)
+    %Th1_1:	    lemma |-(G(l1) and F(l2) => F(l1 and l2))
+
+    Th2: 	    lemma G(l1 and l2) <=> G(l1) and G(l2)
+    Th3:	    lemma F(l1 and l2) => F(l1) and F(l2)
+    Th4:	    lemma F(l1 or l2) <=> F(l1) or F(l2)
+    Th5:	    lemma F(G(l)) => G(F(l))
+    Th6:	    lemma F(l) <=> F(F(l))
+    Th7:	    lemma G(G(l)) <=> G(l)
+
+
+    STL1:	    lemma  |-(l) => |-(G(l))
+    STL2:	    lemma G(l) => l
+    STL3:	    lemma G(G(l)) <=> G(l)
+    STL4:	    lemma |-(l1 => l2) => |-(G(l1) => G(l2))
+
+    STL5:	    lemma G(l1 and l2) <=> G(l1) and G(l2)
+
+
+   
+    STL7:	    lemma G(F(G(l))) <=> F(G(l))
+    STL6:	    lemma F(G(l1)) and F(G(l2)) <=> F(G(l1 and l2))
+   
+  END LTL_test6 
+```
+

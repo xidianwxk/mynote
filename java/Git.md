@@ -687,4 +687,74 @@ git remote rm origin
   $ git pull origin master
   ```
 
-+ 
++ test
+
+  ```shell
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $ git status
+  On branch master
+  Your branch is up to date with 'originee/master'.
+  
+  Changes not staged for commit:
+    (use "git add <file>..." to update what will be committed)
+    (use "git restore <file>..." to discard changes in working directory)
+          modified:   java/Git.md
+  
+  no changes added to commit (use "git add" and/or "git commit -a")
+  
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $ git add .
+  
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $ git status
+  On branch master
+  Your branch is up to date with 'originee/master'.
+  
+  Changes to be committed:
+    (use "git restore --staged <file>..." to unstage)
+          modified:   java/Git.md
+  
+  
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $ git commit -m "修改git"
+  [master 40de73e] 修改git
+   1 file changed, 93 insertions(+), 5 deletions(-)
+  
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $ git push github master
+  fatal: 'github' does not appear to be a git repository
+  fatal: Could not read from remote repository.
+  
+  Please make sure you have the correct access rights
+  and the repository exists.
+  
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $ git push origin master
+  Enumerating objects: 7, done.
+  Counting objects: 100% (7/7), done.
+  Delta compression using up to 8 threads
+  Compressing objects: 100% (4/4), done.
+  Writing objects: 100% (4/4), 1.67 KiB | 1.67 MiB/s, done.
+  Total 4 (delta 2), reused 0 (delta 0), pack-reused 0
+  remote: Resolving deltas: 100% (2/2), completed with 2 local objects.
+  To https://github.com/xidianwxk/mynote.git
+     df40913..40de73e  master -> master
+  
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $ git push originee master
+  Enumerating objects: 7, done.
+  Counting objects: 100% (7/7), done.
+  Delta compression using up to 8 threads
+  Compressing objects: 100% (4/4), done.
+  Writing objects: 100% (4/4), 1.67 KiB | 1.67 MiB/s, done.
+  Total 4 (delta 2), reused 0 (delta 0), pack-reused 0
+  remote: Powered by GITEE.COM [GNK-5.0]
+  To https://gitee.com/w_xkun/mynote.git
+     df40913..40de73e  master -> master
+  
+  Lenovo@DESKTOP-J5DASFT MINGW64 /e/Typora/mynote (master)
+  $
+  
+  ```
+
+  
