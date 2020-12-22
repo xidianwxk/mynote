@@ -1241,7 +1241,7 @@ LTL_test6  % [ parameters ]
     MP : axiom |-(l1) and |-(l1 => l2)  => |-(l2);
    
 
-    Rule_G:	lemma |-(l) => |-(G(l))
+    Rule_G:			lemma |-(l) => |-(G(l))
     Rule_F_impl     : lemma |-(l1 => l2) => |-(F(l1) => F(l2))
     Rule_G_impl	    : lemma |-(l1 => l2) => |-(G(l1) => G(l2))
 
@@ -1270,5 +1270,70 @@ LTL_test6  % [ parameters ]
     STL6:	    lemma F(G(l1)) and F(G(l2)) <=> F(G(l1 and l2))
    
   END LTL_test6 
+```
+
+
+
+## |-  探究
+
+```shell
+DCP  
+		: THEORY
+
+  BEGIN
+
+  % ASSUMING
+  % assuming declarations
+  % ENDASSUMING
+
+
+	%%% NL syntax   Neighbourhood Logic
+	Time : TYPE = real;
+	Interval : type = {b:Time , e:Time | e >= b};
+
+	GV: type+      %%global variables
+	gx: GV
+
+	TV: type+  %%temporal variables
+	tv: TV
+
+	Value: type = real
+	GV_value : type = [GV -> Value]
+	TV_value : type = [TV -> [Interval -> Value]];
+
+	Sem : type = [GV_value , TV_value , Interval];
+
+	i , j : var Interval;
+	r , rx : var Value;
+	sem : var Sem;
+
+	Term : type = [Sem -> Value];
+	Form : type = [Sem -> bool];
+	t1 ,t2 : var Term
+	A , B , C: var Form
+	+(t1,t2): Term = (lambda sem : t1(sem) + t2(sem));
+	>=(t1,t2): Form = (lambda (sem:Sem):t1(sem) >= t2(sem));
+
+	not(A): Form = lambda sem : not A(sem);
+	\/(A,B):Form = lambda sem : A(sem) or B(sem);
+
+	=>(A,B):Form =  not A \/ B;
+	
+	tt : Form = lambda sem: 0=0;
+
+	X(A): Form
+	G(A): Form
+	F(A): Form
+	^(A,B): Form
+
+	satisfiable(A) : bool = exists sem: A(sem);
+	|-(A)	       : bool = forall sem: A(sem);
+
+
+	distribute : axiom |- (F(A \/ B) => (F(A) \/ F(B)));
+	MP	   : lemma |-(A => B) and |-(A) => |-(B);
+
+
+  END DCP
 ```
 

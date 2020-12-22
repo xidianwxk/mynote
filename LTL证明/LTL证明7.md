@@ -168,19 +168,19 @@ Forward chaining on MP,
 Q.E.D.
 ```
 
-####R1-proof
+##### R1-proof
 
 ![image-20201218172107772](LTL证明7.assets\image-20201218172107772.png)
 
-####Rci-proof
+##### Rci-proof
 
 ![image-20201218172117994](LTL证明7.assets\image-20201218172117994.png)
 
-####T3-proof
+#####T3-proof
 
 ![image-20201218172125032](LTL证明7.assets\image-20201218172125032.png)
 
-####T4-proof
+#####T4-proof
 
 ![image-20201218172132722](LTL证明7.assets\image-20201218172132722.png)
 
@@ -210,7 +210,105 @@ Q.E.D.
 
 ![image-20201218172140242](LTL证明7.assets\image-20201218172140242.png)
 
+### 形式化证明的两种风格
 
+#### Hilbert风格
+
+该风格的证明中每行是一个公式，这个公式称为无条件重言式(unconditional tautology)
+
+典型：
+
+希尔伯特演绎系统
+
+**经典命题逻辑的希尔伯特表示形式：**
+
+![image-20201222112926694](LTL证明7.assets/image-20201222112926694.png)
+
+####Gentzen风格
+
+该风格的证明中每行是一个相继式，它也称为条件重言式(conditional tautology)
+
+典型：
+
+自然演绎
+
+**经典逻辑的自然演绎形式：**
+
+<img src="LTL证明7.assets/image-20201222113144255.png" alt="image-20201222113144255" style="zoom:80%;" />
+
+相继式演算
+
+**相继式演算表示的经典逻辑的自然演绎规则形式：**
+
+<img src="LTL证明7.assets/image-20201222113336227.png" alt="image-20201222113336227" style="zoom:80%;" />
+
+### 关于|-
+
+```shell
+DCP  
+		: THEORY
+
+  BEGIN
+
+  % ASSUMING
+  % assuming declarations
+  % ENDASSUMING
+
+
+	%%% NL syntax   Neighbourhood Logic
+	Time : TYPE = real;
+	Interval : type = {b:Time , e:Time | e >= b};
+
+	GV: type+      %%global variables
+	gx: GV
+
+	TV: type+  %%temporal variables
+	tv: TV
+
+	Value: type = real
+	GV_value : type = [GV -> Value]
+	TV_value : type = [TV -> [Interval -> Value]];
+
+	Sem : type = [GV_value , TV_value , Interval];
+
+	i , j : var Interval;
+	r , rx : var Value;
+	sem : var Sem;
+
+	Term : type = [Sem -> Value];
+	Form : type = [Sem -> bool];
+	
+	t1 ,t2 : var Term
+	A , B , C: var Form
+	
+	+(t1,t2): Term = (lambda sem : t1(sem) + t2(sem));
+	>=(t1,t2): Term = (lambda (sem:Sem):t1(sem) >= t2(sem));
+
+
+
+	not(A): Form = lambda sem : not A(sem);
+	\/(A,B):Form = lambda sem : A(sem) or B(sem);
+
+	=>(A,B): Form =  not A \/ B;
+	/\(A,B): Form = not not A \/ not B
+	
+	tt : Form = lambda sem: 0=0;
+
+	X(A): Form
+	G(A): Form
+	F(A): Form
+	^(A,B): Form
+
+	satisfiable(A) : bool = exists sem: A(sem);
+	|-(A)	       : bool = forall sem: A(sem);
+
+
+	distribute : axiom |- (F(A \/ B) => (F(A) \/ F(B)));
+	MP	  	   : lemma |-(A => B) and |-(A) => |-(B);      
+
+
+  END DCP
+```
 
 
 
@@ -238,8 +336,8 @@ Q.E.D.
     
     %F(l)	  : ITL = U(true,l);
     %G(l)	  : ITL = R(false , l)
-    R(l1,l2)	  : ITL = not (U(not l1 ,not l2))
-    %W(l1,l2)	  : ITL = U(l1,l2) or G(l1);
+    R(l1,l2)  : ITL = not (U(not l1 ,not l2))
+    %W(l1,l2) : ITL = U(l1,l2) or G(l1);
     F(l)	  : ITL = chop(finite,l);
     G(l)	  : ITL = not F(not l);
 
@@ -257,8 +355,7 @@ Q.E.D.
 #### 推导规则
 
 $$
-\Gamma\vdash \Delta      \quad \quad \quad \quad \quad \quad \Gamma \rightarrow \Delta   
- \quad \quad \quad \quad \quad  \vdash \Gamma \rightarrow \Delta
+\Gamma\vdash \Delta      
 $$
 
 ```
@@ -268,7 +365,7 @@ $$
 %%% |-(A) : bool = (FORALL sem : A(sem));        //   |-(A) : bool = valid(A)
  	
  	
- 	|-(l)	  : bool = G(l);
+ 	
 
     Gamma	  : var ITL;
     Delta	  : var ITL;
@@ -280,40 +377,48 @@ $$
     *(Gamma , X)  : ITL = Gamma and X;
     +(Delta , X)  : ITL = Delta or X;
     
-    SQT(Gamma , Delta) : bool = |-(Gamma => Delta);       %%%  Gamma + axiom => Delta
+    SQT(Gamma , Delta) : Gamma => Delta;     
     
-    %%%SQT(emptyantecedent , l2)  <=>  tt -> l2  <=>  l2   ??
+    |-(Delta) : bool = SQT(emptyantecedent , Delta)
     
-    MP			  :  axiom  SQT( emptyantecedent , l1 => l2) and SQT(emptyantecedent , l1) 
-     						=> SQT(emptyantecedent , l2)
-    
+    MP		 :  axiom  |-(l1) and |-(l1 => l2)  => |-(l2);
 ```
+
+
+
+![image-20201221222433141](LTL证明7.assets/image-20201221222433141.png)
+
+```
+    chop_left  : lemma  SQT(Gamma * chop(l1,l2) , Delta) and SQT(Gamma , Delta + G(l => l1))
+    	     		 implies  SQT(Gamma * chop(l,l2) , Delta)
+```
+
+
 
 ####RightChopImplChop-proof
 
 ![image-20201218172150100](LTL证明7.assets\image-20201218172150100.png)
 
 ```
- RightChopImplChop : lemma SQT(emptyantecedent , l=>l1) => SQT(emptyantecedent , chop(l2,l) => chop(l2,l1))
+  RightChopImplChop   :  lemma  |-( l=>l1 ) => |-(chop(l2,l) => chop(l2,l1))
 ```
 
 ```
- BoxGen    		   :  axiom  SQT( emptyantecedent , l) => SQT ( emptyantecedent ,  G(l))
+  BoxGen    		  :  axiom  |-(l) => |- (G(l))
 ```
 
 ```
- BoxChopImpChop    :  lemma  SQT( emptyantecedent,  G(l => l1) => (chop(l2,l) => chop(l2,l1)) )
+  BoxChopImpChop	  :  lemma  |-( G(l => l1) => (chop(l2,l) => chop(l2,l1)) )
 ```
 
 
 
-```
+```shell
 RightChopImplChop :  
 
   |-------
 {1}   FORALL (l, l1, l2: ITL):
-        SQT(emptyantecedent, l => l1) =>
-         SQT(emptyantecedent, chop(l2, l) => chop(l2, l1))
+        |-(l => l1) => |-(chop(l2, l) => chop(l2, l1))
 
 Rule? (skolem!)
 Skolemizing,
@@ -321,27 +426,26 @@ this simplifies to:
 RightChopImplChop :  
 
   |-------
-{1}   SQT(emptyantecedent, l!1 => l1!1) =>
-       SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+{1}   |-(l!1 => l1!1) => |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 Rule? (flatten)
 Applying disjunctive simplification to flatten sequent,
 this simplifies to: 
 RightChopImplChop :  
 
-{-1}  SQT(emptyantecedent, l!1 => l1!1)
+{-1}  |-(l!1 => l1!1)
   |-------
-{1}   SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+{1}   |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 Rule? (lemma BoxGen)
 Applying BoxGen 
 this simplifies to: 
 RightChopImplChop :  
 
-{-1}  FORALL (l: ITL): SQT(emptyantecedent, l) => SQT(emptyantecedent, G(l))
-[-2]  SQT(emptyantecedent, l!1 => l1!1)
+{-1}  FORALL (l: ITL): |-(l) => |-(G(l))
+[-2]  |-(l!1 => l1!1)
   |-------
-[1]   SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+[1]   |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 Rule? (inst -1 "l!1 => l1!1")
 Instantiating the top quantifier in -1 with the terms: 
@@ -349,21 +453,20 @@ Instantiating the top quantifier in -1 with the terms:
 this simplifies to: 
 RightChopImplChop :  
 
-{-1}  SQT(emptyantecedent, l!1 => l1!1) =>
-       SQT(emptyantecedent, G(l!1 => l1!1))
-[-2]  SQT(emptyantecedent, l!1 => l1!1)
+{-1}  |-(l!1 => l1!1) => |-(G(l!1 => l1!1))
+[-2]  |-(l!1 => l1!1)
   |-------
-[1]   SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+[1]   |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 Rule? (split)
 Splitting conjunctions,
 this yields  2 subgoals: 
 RightChopImplChop.1 :  
 
-{-1}  SQT(emptyantecedent, G(l!1 => l1!1))
-[-2]  SQT(emptyantecedent, l!1 => l1!1)
+{-1}  |-(G(l!1 => l1!1))
+[-2]  |-(l!1 => l1!1)
   |-------
-[1]   SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+[1]   |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 Rule? (lemma BoxChopImpChop)
 Applying BoxChopImpChop 
@@ -371,11 +474,11 @@ this simplifies to:
 RightChopImplChop.1 :  
 
 {-1}  FORALL (l, l1, l2: ITL):
-        SQT(emptyantecedent, G(l => l1) => (chop(l2, l) => chop(l2, l1)))
-[-2]  SQT(emptyantecedent, G(l!1 => l1!1))
-[-3]  SQT(emptyantecedent, l!1 => l1!1)
+        |-(G(l => l1) => (chop(l2, l) => chop(l2, l1)))
+[-2]  |-(G(l!1 => l1!1))
+[-3]  |-(l!1 => l1!1)
   |-------
-[1]   SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+[1]   |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 Rule? (inst -1 l!1 l1!1 l2!1)
 Instantiating the top quantifier in -1 with the terms: 
@@ -383,12 +486,11 @@ Instantiating the top quantifier in -1 with the terms:
 this simplifies to: 
 RightChopImplChop.1 :  
 
-{-1}  SQT(emptyantecedent,
-          G(l!1 => l1!1) => (chop(l2!1, l!1) => chop(l2!1, l1!1)))
-[-2]  SQT(emptyantecedent, G(l!1 => l1!1))
-[-3]  SQT(emptyantecedent, l!1 => l1!1)
+{-1}  |-(G(l!1 => l1!1) => (chop(l2!1, l!1) => chop(l2!1, l1!1)))
+[-2]  |-(G(l!1 => l1!1))
+[-3]  |-(l!1 => l1!1)
   |-------
-[1]   SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+[1]   |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 Rule? (forward-chain MP)
 Forward chaining on MP,
@@ -397,10 +499,10 @@ This completes the proof of RightChopImplChop.1.
 
 RightChopImplChop.2 :  
 
-[-1]  SQT(emptyantecedent, l!1 => l1!1)
+[-1]  |-(l!1 => l1!1)
   |-------
-{1}   SQT(emptyantecedent, l!1 => l1!1)
-[2]   SQT(emptyantecedent, chop(l2!1, l!1) => chop(l2!1, l1!1))
+{1}   |-(l!1 => l1!1)
+[2]   |-(chop(l2!1, l!1) => chop(l2!1, l1!1))
 
 which is trivially true.
 
@@ -408,4 +510,35 @@ This completes the proof of RightChopImplChop.2.
 
 Q.E.D.
 ```
+
+#### 问题
+
++ 内部变化不够灵活
+
+  ```shell
+  T3 :  
+  
+    |-------
+  {1}   FORALL (l1, l2: ITL): |-( G(X(l1 AND l2) <=> (X(l1) AND X(l2))) )
+  
+  Rule? (skolem!)
+  Skolemizing,
+  this simplifies to: 
+  T3 :  
+  
+    |-------
+  {1}   |-(G(X(l1!1 AND l2!1) <=> (X(l1!1) AND X(l2!1))))
+  
+  Rule? #### "|-"内部的双向蕴含       证明过程中"|-"
+  ```
+
+  ![image-20201221225032597](LTL证明7.assets/image-20201221225032597.png)
+
++ ```shell
+  l1 => l2 |- X(l1) => X(l2)       l1 作为前提    如何在证明过程中引入前提。
+  ```
+
+  
+
+<img src="LTL证明7.assets/image-20201222141036502.png" alt="image-20201222141036502" style="zoom:80%;" />
 
