@@ -384,3 +384,126 @@
   }
   ```
 
+### 贪心
+
+#####[135. 分发糖果](https://leetcode-cn.com/problems/candy/)
+
++ 描述
+
+  ```java
+  老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。
+  
+  你需要按照以下要求，帮助老师给这些孩子分发糖果：
+  
+      每个孩子至少分配到 1 个糖果。
+      相邻的孩子中，评分高的孩子必须获得更多的糖果。
+  
+  那么这样下来，老师至少需要准备多少颗糖果呢？
+  
+  示例 1:
+  
+  输入: [1,0,2]
+  输出: 5
+  解释: 你可以分别给这三个孩子分发 2、1、2 颗糖果。
+  
+  示例 2:
+  
+  输入: [1,2,2]
+  输出: 4
+  解释: 你可以分别给这三个孩子分发 1、2、1 颗糖果。
+       第三个孩子只得到 1 颗糖果，这已满足上述两个条件。
+  ```
+
++ 题解
+
+  + 两次遍历
+
+    <img src="Leetcode.assets/image-20201224195055127.png" alt="image-20201224195055127" style="zoom:67%;" />
+
+  ```java
+  class Solution {
+      public int candy(int[] ratings) {
+          if(ratings == null || ratings.length == 0){
+              return 0;
+          }
+          int[] nums = new int[ratings.length];//记录每一位孩子得到的糖果数
+          nums[0] = 1;
+          //先正序遍历，如果后一位比前一位高分，就给比前一位多1的糖果，否则给1
+          for(int i = 1; i < ratings.length; i++){
+              if(ratings[i] > ratings[i-1]){
+                  nums[i] = nums[i-1] + 1;        
+              }else {
+                  nums[i] = 1;
+              }
+          }
+          //在倒叙遍历，如果前一位比后一位高分并且得到的糖果小于或等于后一位，就给前一位孩子比后一位孩子多一个糖果
+          for(int i = ratings.length -2 ; i >= 0; i--){
+              if(ratings[i] > ratings[i+1] && nums[i] <= nums[i+1]){
+                  nums[i] = nums[i+1] +1;
+              }
+          }
+          int count = 0;
+          for(int i : nums){
+              count +=i;
+          }
+          return count;
+      }
+  }
+  ```
+
+  + 一次遍历会有3种情况
+    1，当前孩子的评分比左边的高，也就是递增的，那么当前孩子的糖果数量要比左边个多1。
+    2，当前孩子的评分等于左边孩子的评分，我们让他降为1,也就是说当前孩子的糖果是1，最终是不是1,后面还需要在判断。
+    3，当前孩子的评分低于左边孩子的评分，也就是递减的，这个我们就没法确定当前孩子的糖果了，但我们可以统计递减孩子的数量（我们可以反向思考，这个递减的序列中，最后一个肯定是1，并且从后往前都逐渐增加的）
+
+    举个例子，比如数组是[1,3,4,6,8,5,3,1]，8是得分的最高点，8前面的从1开始都是递增的，8后面的从5开始是递减的。也就是说8前面的从1到6，每个孩子的糖果数量分别是[1,2,3,4],那么8后面的从5到1每个孩子的糖果数量分别是[3,2,1]。那么8的糖果数量就是左右两边的最大值加1，也就是4+1=5。
+    所以8左边糖果的数量是(1+4)*4/2=10，右边的糖果数量是(1+3)*3/2=6，所以总的糖果数量是10+6+5=21
+
+  
+
+  ![image-20201224200016210](Leetcode.assets/image-20201224200016210.png)
+
+  
+
+  ```java
+   public int candy(int[] ratings) {
+          int length = ratings.length;
+          if (length == 1)
+              return 1;
+          //记录访问到哪个孩子了
+          int index = 0;
+          //记录总共的糖果
+          int total = 0;
+          while (index < length - 1) {
+              int left = 0;
+              //统计递增的长度
+              while (index < length - 1 && ratings[index + 1] > ratings[index]) {
+                  index++;
+                  left++;
+              }
+              int right = 0;
+              //统计递减的长度
+              while (index < length - 1 && ratings[index + 1] < ratings[index]) {
+                  index++;
+                  right++;
+              }
+              //记录顶点的值，也就是左右两边最大的值加1
+              int peekCount = Math.max(left, right) + 1;
+              //注意这里如果total不等于0要减1，是因为把数组拆分成子数组的时候，低谷的那
+              //个会被拆到两个数组中，如果total不等于0，说明之前已经统计过，而下面会再次
+              //统计，所以要提前减去。
+              if (total != 0)
+                  total--;
+              //当前这个子数组的糖果数量就是前面递增的加上后面递减的然后在加上顶点的。
+              total += (1 + left) * left / 2 + (1 + right) * right / 2 + peekCount;
+              //如果当前孩子的得分和前一个一样，我们让他降为1
+              while (index < length - 1 && ratings[index + 1] == ratings[index]) {
+                  index++;
+                  total++;
+              }
+          }
+          return total;
+      }
+  ```
+
+  
